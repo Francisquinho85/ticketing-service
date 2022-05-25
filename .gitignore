@@ -1,0 +1,4 @@
+/venv/*
+access_log
+error_log
+/__pycache__

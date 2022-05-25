@@ -1,9 +1,10 @@
 #run this program with python3 -m uvicorn main:app --reload on Windows
 #or just uvicorn main:app --reload on Linux
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI    
 from fastapi_versioning import VersionedFastAPI, version
 from sqlalchemy.orm import Session
+from typing import List
 
 from database import SessionLocal, engine
 import crud, models, schemas
@@ -24,7 +25,7 @@ def get_db():
 def get_event_by_id(event_id: int, db: Session = Depends(get_db)):
     return crud.get_event_by_id(db, event_id)
 
-@app.get("/events/", response_model=list[schemas.Event])
+@app.get("/events/", response_model=List[schemas.Event])
 @version(1)
 def get_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_events(db, skip, limit)
