@@ -47,6 +47,12 @@ def update_event(db: Session, event: schemas.UpdateEvent, event_id: int):
 
 def delete_event(db: Session, event_id: int):
     deleted_event = db.query(models.Event).filter(models.Event.id == event_id)
+    i = 0
+
+    while i < deleted_event.n_tickets:
+        delete_ticket(event_id)
+        i += 1
+
     if not deleted_event.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Event with id {event_id} was not found')
     deleted_event.delete(synchronize_session=False)
@@ -101,5 +107,11 @@ def update_ticket(db: Session, ticket: schemas.UpdateTicket, ticket_id: int):
     db.commit()
     return update_ticket.first()
 
-def delete_ticket(db: Session):
-    return 0
+def delete_ticket(db: Session, event_id: int):
+    deleted_ticket = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).first()
+
+    if not deleted_ticket.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Ticket with id {deleted_ticket.id} was not found')
+    deleted_ticket.delete(synchronize_session=False)
+    db.commit()
+    return {"Success": f"Ticket with id {deleted_ticket.id} was successfully deleted"}
