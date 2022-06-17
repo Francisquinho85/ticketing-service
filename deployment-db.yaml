@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-ticketing
+  namespace: egs3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-ticketing
+  template:
+    metadata:
+      labels:
+        app: db-ticketing
+    spec:
+      containers:
+      - name: db-ticketing
+        image: postgres12-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          value: ticketing
+
+#Create Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-ticketing
+  namespace: egs3
+spec:
+  ports:
+  - port: 80
+    targetPort: 5432
+  selector:
+    app: db-ticketing

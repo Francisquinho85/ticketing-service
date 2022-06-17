@@ -4,13 +4,13 @@ MAINTAINER Francisco Monteiro
 
 LABEL version="1.0"
 
-RUN mkdir /ticketing-app
+RUN mkdir /app-ticketing
 
-WORKDIR /ticketing-app
+WORKDIR /app-ticketing
 
 COPY requirements.txt requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY . .
 

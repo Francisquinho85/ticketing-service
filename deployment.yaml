@@ -2,52 +2,56 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app
-  namespace: franmonteiro
+  name: app-ticketing
+  namespace: egs3
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: app
+      app: app-ticketing
   template:
     metadata:
       labels:
-        app: app
+        app: app-ticketing
     spec:
       containers:
       - name: app-ticketing
-        image: registry.deti:5000/app
-        resources:
-          requests:
-            memory: "32Mi"
-            cpu: "10m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+        image: registry.deti:5000/ticketing/app-ticketing:20220617
         ports:
         - containerPort: 8080
+        env:
+        - name: POSTGRES_USER
+          value: francisco
+        - name: POSTGRES_PASSWORD
+          value: ticketing
+        - name: POSTGRES_SERVER
+          value: db-ticketing
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: ticketingdb
 
 #Create Service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app
-  namespace: franmonteiro
+  name: app-ticketing
+  namespace: egs3
 spec:
   ports:
   - port: 80
     targetPort: 8080
   selector:
-    app: app
+    app: app-ticketing
 
 #Create Route
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app-k3s
-  namespace: franmonteiro
+  name: app-ticketing
+  namespace: egs3
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/frontend-entry-points: http,https
@@ -55,13 +59,13 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
 spec:
   rules:
-  - host: app.k3s
+  - host: app-ticketing.k3s
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: app
+            name: app-ticketing
             port: 
               number: 80
