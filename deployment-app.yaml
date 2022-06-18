@@ -1,0 +1,36 @@
+#Create App Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-ticketing
+  namespace: egs3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-ticketing
+  template:
+    metadata:
+      labels:
+        app: app-ticketing
+    spec:
+      containers:
+      - name: app-ticketing
+        image: registry.deti:5000/ticketing/app-ticketing:202206181735
+        ports:
+        - containerPort: 8080 
+
+#Create Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-ticketing
+  namespace: egs3
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: app-ticketing

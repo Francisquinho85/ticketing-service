@@ -1,10 +1,11 @@
-FROM python:3.9
+FROM python:3.9.4-slim
 
 MAINTAINER Francisco Monteiro
 
 LABEL version="1.0"
 
 RUN mkdir /app-ticketing
+RUN mkdir /app-ticketing/www
 
 WORKDIR /app-ticketing
 
@@ -15,5 +16,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 EXPOSE 8080/tcp
+
+VOLUME /app-ticketing/www
 
 ENTRYPOINT ["uvicorn", "main:app"]

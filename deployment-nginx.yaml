@@ -1,0 +1,86 @@
+# Create nginx deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ticketing
+  namespace: egs3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-ticketing
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx-ticketing
+    spec:
+      containers:
+        - image: registry.deti:5000/ticketing/nginx-ticketing:202206181735
+          name: nginx-ticketing
+          ports:
+            - containerPort: 80
+          resources: {}
+          volumeMounts:
+            - name: nginx-ticketing-pvc
+              mountPath: /var/www/static
+      restartPolicy: Always
+      volumes:
+        - name: nginx-ticketing-pvc
+          persistentVolumeClaim:
+            claimName: nginx-ticketing-pvc
+
+# Create Service for Nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ticketing
+  namespace: egs3
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx-ticketing
+
+#Create Route
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ticketing
+  namespace: egs3
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+spec:
+  rules:
+  - host: app-ticketing.k3s
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-ticketing
+            port: 
+              number: 80
+
+#Create PVC
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-ticketing-pvc
+  namespace: egs3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 100Mi
