@@ -19,4 +19,4 @@ EXPOSE 8080/tcp
 
 VOLUME /app-ticketing/www
 
-ENTRYPOINT ["uvicorn", "main:app"]
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

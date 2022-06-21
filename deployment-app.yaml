@@ -17,16 +17,20 @@ spec:
     spec:
       containers:
       - name: app-ticketing
-        image: registry.deti:5000/ticketing/app-ticketing:202206181735
+        image: registry.deti:5000/ticketing/app-ticketing:202206210203
         ports:
-        - containerPort: 8080 
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: postgres-ticketing-config 
+      restartPolicy: Always
 
 #Create Service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-ticketing
+  name: app-ticketing-service
   namespace: egs3
 spec:
   ports:

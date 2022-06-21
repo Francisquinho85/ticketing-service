@@ -1,0 +1,10 @@
+#Create Config Map
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-ticketing-config
+  namespace: egs3
+data:
+  POSTGRES_DB: ticketingdb
+  POSTGRES_USER: francisco
+  POSTGRES_PASSWORD: ticketing

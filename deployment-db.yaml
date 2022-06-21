@@ -16,23 +16,47 @@ spec:
     spec:
       containers:
       - name: db-ticketing
-        image: postgres12-alpine
+        image: postgres:12-alpine
+        imagePullPolicy: "IfNotPresent"
         ports:
         - containerPort: 5432
-        env:
-        - name: POSTGRES_PASSWORD
-          value: ticketing
+        envFrom:
+        - configMapRef:
+            name: postgres-ticketing-config
+        volumeMounts:
+        - name: postgres-ticketing-pvc
+          mountPath: /var/www/static
+      restartPolicy: Always
+      volumes:
+      - name: postgres-ticketing-pvc
+        persistentVolumeClaim:
+            claimName: postgres-ticketing-pvc
 
 #Create Service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: db-ticketing
+  name: db-ticketing-service
   namespace: egs3
 spec:
   ports:
-  - port: 80
+  - port: 5432
     targetPort: 5432
   selector:
     app: db-ticketing
+
+#Create PVC
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-ticketing-pvc
+  namespace: egs3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 500Mi
