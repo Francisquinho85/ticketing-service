@@ -17,7 +17,7 @@ spec:
         app: nginx-ticketing
     spec:
       containers:
-        - image: registry.deti:5000/ticketing/nginx-ticketing:202206210033
+        - image: registry.deti:5000/ticketing/nginx-ticketing:202206211512
           name: nginx-ticketing
           ports:
             - containerPort: 80
@@ -29,7 +29,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-ticketing-service
+  name: nginx-ticketing
   namespace: egs3
 spec:
   ports:
@@ -43,7 +43,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-ticketing
+  name: nginx-ticketing
   namespace: egs3
   annotations:
     kubernetes.io/ingress.class: traefik

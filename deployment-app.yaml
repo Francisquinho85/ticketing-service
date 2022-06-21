@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: app-ticketing
-        image: registry.deti:5000/ticketing/app-ticketing:202206210203
+        image: registry.deti:5000/ticketing/app-ticketing:202206211514
         ports:
         - containerPort: 8080
         envFrom:
@@ -30,7 +30,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-ticketing-service
+  name: app-ticketing
   namespace: egs3
 spec:
   ports:

@@ -20,9 +20,9 @@ def get_db():
     finally:
         db.close()
 
-# @app.get("/")
-# def hello_world():
-#     return {"Success": "Hello World"}
+@app.get("/")
+def hello_world():
+    return {"Success": "Hello World"}
 
 @app.get("/event/{event_id}", response_model=schemas.Event)
 @version(1)
