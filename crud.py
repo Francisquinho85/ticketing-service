@@ -51,7 +51,6 @@ def delete_event(db: Session, event_id: int):
     n_tickets = db.query(models.Event.number_tickets).filter(models.Event.id == event_id)
     deleted_event = db.query(models.Event).filter(models.Event.id == event_id)
     i = 0
-    print(n_tickets.first()[0])
     while i < n_tickets.first()[0]:
         delete_ticket(db, event_id)
         i += 1
@@ -120,11 +119,19 @@ def delete_ticket(db: Session, event_id: int):
     db.commit()
     return {"Success": f"Ticket was successfully deleted"}
 
-def pay_ticket(db: Session, event_id:int , nif:int, name: str):
-    ticket = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).filter(models.Ticket.status == 0)
-    if not ticket.first():
+def pay_ticket(db: Session, event_id: int , nif: int, name: str):
+    event = db.query(models.Event).filter(models.Event.id == event_id).first()
+
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'No event was found with that id')
+    
+    ticket = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).filter(models.Ticket.status == 0).first()
+    if not ticket:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'No more tickets for this event')
     else:
-        ticket.update({"status": 1})
+        currentTicket = db.query(models.Ticket).filter(models.Ticket.id == ticket.id)
+        currentTicket.update({"status": 1})
+        currentTicket.update({"name": name})
+        currentTicket.update({"nif": nif})
         db.commit()
         return {"Success": f"Ticket was successfully paid"}

@@ -23,7 +23,7 @@ class Ticket(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(Integer, ForeignKey("events.id"))
-    nif = Column(Integer, unique=True)
+    nif = Column(Integer)
     status = Column(Integer)
     name = Column(String)
 
