@@ -1,7 +1,7 @@
 #run this program with python3 -m uvicorn main:app --reload on Windows
 #or just uvicorn main:app --reload on Linux
 
-from fastapi import Depends, FastAPI    
+from fastapi import Depends, FastAPI, status    
 from fastapi_versioning import VersionedFastAPI, version
 from sqlalchemy.orm import Session
 from typing import List
@@ -34,7 +34,7 @@ def get_event_by_id(event_id: int, db: Session = Depends(get_db)):
 def get_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_events(db, skip, limit)
 
-@app.post("/event/", response_model=schemas.Event)
+@app.post("/event/", response_model=schemas.Event, status_code=status.HTTP_201_CREATED)
 @version(1)
 def create_event(event: schemas.Event, db: Session = Depends(get_db)):
     return crud.create_event(db, event)
@@ -69,7 +69,7 @@ def get_tickets(nif: int = None, status: int = None, name: str = None, event_id:
 def update_ticket(ticket_id: int, ticket: schemas.UpdateTicket, db: Session = Depends(get_db)):
     return crud.update_ticket(db, ticket, ticket_id)
 
-@app.post("/ticket/pay/{event_id}")
+@app.post("/ticket/pay/")
 @version(1)
 def pay_ticket(event_id: int, nif: int, name: str, db: Session = Depends(get_db)):
     return crud.pay_ticket(db, event_id, nif, name)
