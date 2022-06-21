@@ -49,10 +49,10 @@ def update_event(event_id: int, event: schemas.UpdateEvent, db: Session = Depend
 def delete_event(event_id: int, db: Session = Depends(get_db)):
     return crud.delete_event(db, event_id)
 
-@app.post("/ticket/")
-@version(1)
-def create_ticket(ticket: schemas.Ticket, db: Session = Depends(get_db)):
-    return crud.create_ticket(db, ticket)
+# @app.post("/ticket/")
+# @version(1)
+# def create_ticket(ticket: schemas.Ticket, db: Session = Depends(get_db)):
+#     return crud.create_ticket(db, ticket)
 
 @app.get("/ticket/{ticket_id}")
 @version(1)
@@ -69,11 +69,10 @@ def get_tickets(nif: int = None, status: int = None, name: str = None, event_id:
 def update_ticket(ticket_id: int, ticket: schemas.UpdateTicket, db: Session = Depends(get_db)):
     return crud.update_ticket(db, ticket, ticket_id)
 
-@app.post("/ticket/{ticket_id}/pay/")
+@app.post("/ticket/pay/{event_id}")
 @version(1)
-def pay_ticket(ticket_id: int):
-    #paymentService.pay(ticket_id, amount, nif)
-    return {"Success": "Ticket paid successfully"}
+def pay_ticket(event_id: int, nif: int, name: str, db: Session = Depends(get_db)):
+    return crud.pay_ticket(db, event_id, nif, name)
 
 app = VersionedFastAPI(app,
     version_format='{major}',

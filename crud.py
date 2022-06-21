@@ -37,6 +37,8 @@ def update_event(db: Session, event: schemas.UpdateEvent, event_id: int):
     if event.ticket_price:
         update_event.update({"ticket_price": event.ticket_price})
     if event.number_tickets:
+        n_tickets = db.query(models.Event.number_tickets).filter(models.Event.id == event_id).first()[0]
+        create_tickets(db, event_id, (event.number_tickets - n_tickets))
         update_event.update({"number_tickets": event.number_tickets})
     if event.promotor:
         update_event.update({"promotor": event.promotor})
@@ -46,13 +48,15 @@ def update_event(db: Session, event: schemas.UpdateEvent, event_id: int):
     return update_event.first()
 
 def delete_event(db: Session, event_id: int):
+    n_tickets = db.query(models.Event.number_tickets).filter(models.Event.id == event_id)
     deleted_event = db.query(models.Event).filter(models.Event.id == event_id)
     i = 0
-
-    while i < deleted_event.n_tickets:
-        delete_ticket(event_id)
+    print(n_tickets.first()[0])
+    while i < n_tickets.first()[0]:
+        delete_ticket(db, event_id)
         i += 1
 
+    deleted_event.update({"number_tickets": 0})
     if not deleted_event.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Event with id {event_id} was not found')
     deleted_event.delete(synchronize_session=False)
@@ -62,7 +66,7 @@ def delete_event(db: Session, event_id: int):
 def get_ticket_by_id(db: Session, ticket_id: int):
     ticket = db.query(models.Ticket).filter(models.Ticket.id == ticket_id).first()
     if not ticket:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Ticket with id {ticket} was not found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Ticket with id {ticket_id} was not found')
     return ticket
 
 def get_tickets(db: Session,  nif: int, status: int, name: str, event_id: int, skip: int = 0, limit: int = 100):
@@ -98,20 +102,29 @@ def update_ticket(db: Session, ticket: schemas.UpdateTicket, ticket_id: int):
     if not update_ticket.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Ticket with id {ticket_id} was not found')
     
-    if ticket.nif:
+    if ticket.nif != None:
         update_ticket.update({"nif": ticket.nif})
-    if ticket.status:
+    if ticket.status != None:
         update_ticket.update({"status": ticket.status})
-    if ticket.name:
+    if ticket.name != None:
         update_ticket.update({"name": ticket.name})
     db.commit()
     return update_ticket.first()
 
 def delete_ticket(db: Session, event_id: int):
-    deleted_ticket = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).first()
+    deleted_ticket = db.query(models.Ticket).filter(models.Ticket.event_id == event_id)
 
     if not deleted_ticket.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'Ticket with id {deleted_ticket.id} was not found')
+        return {"No tickets were found for this event"}
     deleted_ticket.delete(synchronize_session=False)
     db.commit()
-    return {"Success": f"Ticket with id {deleted_ticket.id} was successfully deleted"}
+    return {"Success": f"Ticket was successfully deleted"}
+
+def pay_ticket(db: Session, event_id:int , nif:int, name: str):
+    ticket = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).filter(models.Ticket.status == 0)
+    if not ticket.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'No more tickets for this event')
+    else:
+        ticket.update({"status": 1})
+        db.commit()
+        return {"Success": f"Ticket was successfully paid"}
