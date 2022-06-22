@@ -17,12 +17,20 @@ spec:
     spec:
       containers:
       - name: app-ticketing
-        image: registry.deti:5000/ticketing/app-ticketing:2022062210
+        image: registry.deti:5000/ticketing/app-ticketing:202206221407
         ports:
         - containerPort: 8080
         envFrom:
         - configMapRef:
-            name: postgres-ticketing-config 
+            name: postgres-ticketing-config
+        volumeMounts:
+          - name: ticketing-secret
+            mountPath: "/tmp/secrets"
+            readOnly: true
+      volumes:
+        - name: ticketing-secret
+          secret:
+            secretName: ticketing-secret
       restartPolicy: Always
 
 #Create Service

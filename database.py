@@ -4,8 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from pydantic import Field
 import os
 
-#SQLALCHEMY_DATABASE_URL = "postgresql://" + POSTGRES_USER + ":" + POSTGRES_PASSWORD + "@" + POSTGRES_SERVER + ":5432/" + POSTGRES_DB
-SQLALCHEMY_DATABASE_URL = "postgresql://francisco:ticketing@db-ticketing:5432/ticketingdb"
+SQLALCHEMY_DATABASE_URL = ""
+#SQLALCHEMY_DATABASE_URL = "postgresql://francisco:ticketing@db-ticketing:5432/ticketingdb"
+with open("/tmp/secrets/ticketing-secret", 'r') as f:
+    SQLALCHEMY_DATABASE_URL = f.read().strip()
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
