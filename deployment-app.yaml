@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: app-ticketing
-        image: registry.deti:5000/ticketing/app-ticketing:202206211742
+        image: registry.deti:5000/ticketing/app-ticketing:2022062210
         ports:
         - containerPort: 8080
         envFrom:
